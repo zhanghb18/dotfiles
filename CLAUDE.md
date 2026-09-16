@@ -166,6 +166,38 @@ Notes on the reference file:
 - `core.hooksPath` is intentionally not set, so per-repo hooks keep working.
 - No `[user]` section, per the paragraph above.
 
+### GitHub identity
+
+The global identity above is the GitLab / work one. GitHub repos need a
+different address, so this dotfiles repo sets its own identity locally:
+
+```bash
+git config --local user.name "Zhang Houbin"
+git config --local user.email "64059464+zhanghb18@users.noreply.github.com"
+```
+
+Two things to know:
+
+- `--local` lives in `.git/config`, which is not tracked. After cloning this
+  repo on a new machine, run those two commands again or commits go out under
+  the work email.
+- The `64059464+` prefix is required. This GitHub account was created after
+  2017-07-18, so the bare `zhanghb18@users.noreply.github.com` form does not
+  get attributed to the account.
+
+To make this automatic instead of per-clone, key it off the remote URL in
+`git/.gitconfig` and drop the `--local` step:
+
+```gitconfig
+[includeIf "hasconfig:remote.*.url:https://github.com/**"]
+	path = ~/.config/git/github.inc
+[includeIf "hasconfig:remote.*.url:git@github.com:**"]
+	path = ~/.config/git/github.inc
+```
+
+Requires git >= 2.36. All GitHub remotes are on `github.com` and all work
+remotes are on `ai-git.shiyak-office.com`, so the condition is unambiguous.
+
 ## 7. Package Summary
 
 For Arch Linux:
