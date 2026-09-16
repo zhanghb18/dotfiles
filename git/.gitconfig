@@ -1,9 +1,14 @@
 [core]
-	hooksPath = ~/.git-hooks
 	quotepath = false
 	pager = delta
-[user]
-	email = wjhhhhhha0@gmail.com
+# Identity is deliberately not set here. This file gets copied to ~/.gitconfig
+# on every machine, and a work email does not belong in a repo that may be
+# public. Set it per machine after copying:
+#   git config --global user.name  "<name>"
+#   git config --global user.email "<address>"
+# GitHub repos need a different address — see "GitHub identity" in CLAUDE.md.
+[url "https://github"]
+	insteadOf = git://github
 [interactive]
 	diffFilter = delta --color-only
 [delta]

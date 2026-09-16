@@ -10,7 +10,7 @@ outside this repo.
 ## Quick Setup
 
 ```bash
-git clone --recursive git@github.com:FatPigeorz/dotfiles.git ~/.dotfiles
+git clone --recursive https://github.com/zhanghb18/dotfiles.git ~/.dotfiles
 ```
 
 Then ask an agent to read `CLAUDE.md` and set up the Linux environment.

@@ -2,6 +2,9 @@ set -gx PATH $HOME/.local/bin $HOME/.cargo/bin $HOME/go/bin $PATH
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 set -gx BAT_THEME rose-pine
+# claude code 在 root 下需要它才允许 --dangerously-skip-permissions
+# 必须放在 is-interactive 之外,否则非交互 fish / zellij resurrect 拿不到
+set -gx IS_SANDBOX 1
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
 set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
 

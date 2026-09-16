@@ -1,6 +1,7 @@
 # Theme: Rosé Pine
 
-All tools use the [Rosé Pine](https://rosepinetheme.com/) color scheme (variant: `main`).
+[Rosé Pine](https://rosepinetheme.com/) (variant: `main`) is the default across
+tools. Zellij is the one deliberate exception — see below.
 
 ## Palette
 
@@ -31,7 +32,9 @@ iris      #c4a7e7
 - Reference: `starship/starship.toml`
 
 ### Zellij
-- Set `theme "rose-pine"` in config.kdl (zellij has built-in rose-pine)
+- Exception: this repo runs `theme "catppuccin-mocha"`, not rose-pine.
+- Zellij does ship a built-in `rose-pine` theme, so switching back is a
+  one-line change in `zellij/config.kdl`.
 - Reference: `zellij/config.kdl`
 
 ### Yazi
@@ -49,14 +52,11 @@ iris      #c4a7e7
 - Set `syntax-theme = rose-pine` in `.gitconfig` under `[delta]`
 - Reference: `git/.gitconfig`
 
-### iTerm2 (macOS)
-- Download from `rose-pine/iterm` GitHub repo
-- Import `.itermcolors` file in Preferences → Profiles → Colors → Color Presets
-- This is manual — cannot be automated by symlink
-
-### Other terminals
-- For terminals besides iTerm2, find the rose-pine port at https://rosepinetheme.com/
-- The key colors to set: background `#191724`, foreground `#e0def4`, cursor `#524f67`
+### Terminal emulator
+- Out of scope for this repo. The host terminal (Windows Terminal, Warp, iTerm2)
+  is configured on the host — see the boundary in `CLAUDE.md`.
+- If you do theme one by hand, find the port at https://rosepinetheme.com/, or
+  set background `#191724`, foreground `#e0def4`, cursor `#524f67`.
 
 ## Adding theme to a new tool
 

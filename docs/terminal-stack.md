@@ -71,6 +71,17 @@ The config wires up:
 - `mise activate fish`
 - a `y` wrapper for Yazi cwd handoff
 - zsh-era `cd -> zoxide` behavior through `alias cd z`
+- `IS_SANDBOX=1`
+
+`IS_SANDBOX` is exported before the `status is-interactive` guard on purpose:
+
+```fish
+set -gx IS_SANDBOX 1
+```
+
+Inside the guard, non-interactive fish and Zellij resurrect would not pick it
+up. Zellij sets the same variable through `env { IS_SANDBOX "1" }` in
+`zellij/config.kdl`, so panes get it even when the shell config is not read.
 
 Fish starts in vi normal mode for command-line editing:
 

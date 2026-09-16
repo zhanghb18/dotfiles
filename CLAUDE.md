@@ -78,6 +78,8 @@ The fish config initializes:
 - direnv
 - mise
 - Yazi `y` wrapper
+- `IS_SANDBOX=1`, exported outside the `status is-interactive` guard so
+  non-interactive fish and Zellij resurrect also see it
 
 ## 3. Terminal Workspace
 
@@ -86,7 +88,14 @@ The fish config initializes:
 - Install via package manager.
 - Reference config: `zellij/config.kdl`
 - Target path: `~/.config/zellij/config.kdl`
-- Default interaction model is locked-mode first.
+- Default interaction model is normal-mode first (`default_mode "normal"`), with
+  the stock keybindings plus a `tmux` mode.
+- Theme is `catppuccin-mocha` here, a deliberate exception to the Rose Pine
+  default. See `theme/README.md`.
+- The config declares `env { IS_SANDBOX "1" }` so every pane and every
+  resurrected command inherits it without depending on a fish alias.
+- Zellij rewrites this file when it regenerates defaults. After a rewrite,
+  re-apply the repo copy or capture the machine copy back into the repo.
 
 ### Tmux
 
@@ -114,7 +123,9 @@ Targets:
 ### Neovim
 
 - Install `neovim` and `python-pynvim`.
-- Config source: `nvim/` submodule.
+- Config source: `nvim/` submodule, tracking upstream
+  `https://github.com/FatPigeorz/nvim_config` read-only over HTTPS so a new
+  machine can `clone --recursive` without an SSH key.
 - Preferred target: clone/copy to `~/.config/nvim`.
 - Initialize plugins once with `nvim --headless '+qa'`.
 - Install Mason LSPs declared by the config:
@@ -133,8 +144,27 @@ Targets:
 - `git/.gitconfig` -> `~/.gitconfig`
 - `git/ignore` -> `~/.config/git/ignore`
 
-When applying `git/.gitconfig`, preserve any existing `user.name` and
-`user.email` unless the user explicitly wants the repo values.
+`git/.gitconfig` sets no `user.name` / `user.email` on purpose. This file is
+copied to `~/.gitconfig` verbatim, and the work address should not be in a repo
+that may be public. Set the identity per machine after copying:
+
+```bash
+git config --global user.name  "<name>"
+git config --global user.email "<address>"
+```
+
+Until that is done, git refuses to commit rather than guessing — which is the
+point. GitHub repos need a different address; see the next section.
+
+Notes on the reference file:
+
+- `core.pager = delta` and `[interactive] diffFilter` assume `git-delta` is
+  installed. Without it, `git diff` fails — install `git-delta` or drop those
+  two settings on that machine.
+- `[url "https://github"] insteadOf = git://github` rewrites legacy `git://`
+  URLs, which some vendored dependencies still use.
+- `core.hooksPath` is intentionally not set, so per-repo hooks keep working.
+- No `[user]` section, per the paragraph above.
 
 ## 7. Package Summary
 
