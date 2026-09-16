@@ -17,6 +17,7 @@ Managed here:
 - `~/.claude/settings.json` (portable keys only — see `claude/README.md`)
 - `~/.gitconfig`
 - `~/.config/git/ignore`
+- `~/.config/git/github.inc`
 - `~/.tmux.conf`
 
 Not managed here:
@@ -35,7 +36,7 @@ Linux-focused.
 The current preferred environment is:
 
 ```text
-Arch Linux on WSL or native Linux
+Ubuntu 24.04 LTS, native or under WSL
 bash as the login shell, fish as the interactive shell
 Starship prompt
 Zellij for workspace sessions
@@ -127,33 +128,93 @@ or manage zsh config from this repo.
 
 ## Core Tools
 
-Install this set first:
+Package names below are Ubuntu's. They differ from the upstream Arch names in
+several places, and a few tools are not packaged at all — see "Not In apt".
+
+From apt:
 
 ```text
-fish starship zoxide fzf atuin direnv eza bat fd ripgrep yazi zellij neovim git git-delta lazygit
+fish zoxide direnv eza bat fd-find ripgrep git git-delta gh tmux
 ```
 
-Then add toolchains:
+Toolchains from apt:
 
 ```text
-rustup uv mise nodejs npm go python-pynvim
+rustup nodejs npm golang-go python3-pynvim
 ```
 
-Then add quality-of-life utilities:
+Quality-of-life from apt:
 
 ```text
-btop duf dust procs hyperfine tokei sd jq poppler ffmpeg 7zip resvg imagemagick github-cli tmux
+btop duf hyperfine sd jq poppler-utils ffmpeg 7zip imagemagick
 ```
 
-## Arch Install Command
+### Not In apt
+
+Ubuntu 24.04 does not package these. This machine installs them as prebuilt
+binaries:
+
+| Tool | Where it lands here |
+|---|---|
+| starship, atuin, mise, yazi, resvg, lazygit, fzf | `~/.local/bin/` |
+| uv, zellij | `/usr/local/bin/` |
+| neovim | tarball in `/opt/nvim`, symlinked into `~/.local/bin/nvim` |
+| dust, procs, tokei | not installed here; `cargo install du-dust procs tokei` |
+
+`fzf` is in that list on purpose even though apt has it. See below.
+
+### Ubuntu Gotchas
+
+Four things bite on Ubuntu that do not exist on Arch. All four are load-bearing
+for `shell/config.fish`, so skipping them leaves a broken prompt.
+
+**Binaries are renamed.** `fd-find` installs `fdfind` and `bat` installs
+`batcat`, because both names collide with older Debian packages. The fish config
+calls `fd` and `bat` (`alias cat bat`, `alias find fd`, and the fzf defaults), so
+bridge them once:
 
 ```bash
-sudo pacman -S --needed \
-  fish starship zoxide fzf atuin direnv mise uv nodejs npm go rustup \
-  zellij tmux yazi ffmpeg 7zip jq poppler fd ripgrep resvg imagemagick \
-  eza bat neovim python-pynvim git git-delta lazygit github-cli \
-  btop duf dust procs hyperfine tokei sd
+mkdir -p ~/.local/bin
+ln -sf /usr/bin/fdfind ~/.local/bin/fd
+ln -sf /usr/bin/batcat ~/.local/bin/bat
 ```
+
+**apt's fzf is too old.** 24.04 ships 0.44, which has no `--fish` flag, and
+`shell/config.fish` runs `fzf --fish | source`. Install a current fzf binary
+into `~/.local/bin` instead of `apt install fzf` (this machine runs 0.74).
+
+**apt's neovim is too old.** 24.04 ships 0.9.5. Use the upstream tarball; this
+machine runs 0.12.4 out of `/opt/nvim`.
+
+**ImageMagick is version 6.** `imagemagick` provides `convert` via
+`convert-im6.q16`, not the `magick` entry point that ImageMagick 7 uses. Fine for
+Yazi previews, worth knowing if something asks for `magick`.
+
+## Ubuntu Install Command
+
+```bash
+sudo apt update
+sudo apt install -y \
+  fish zoxide direnv tmux git git-delta gh \
+  ffmpeg 7zip jq poppler-utils imagemagick \
+  fd-find ripgrep eza bat \
+  nodejs npm golang-go rustup python3-pynvim \
+  btop duf hyperfine sd
+```
+
+Deliberately not in that line: `fzf` and `neovim`, both too old in 24.04, and
+everything under "Not In apt".
+
+Then the rename bridge:
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf /usr/bin/fdfind ~/.local/bin/fd
+ln -sf /usr/bin/batcat ~/.local/bin/bat
+```
+
+`git-delta` is not optional if `git/.gitconfig` is applied: that file sets
+`core.pager = delta`, so `git diff` fails outright when delta is missing.
 
 ## Apply Configs
 
@@ -169,6 +230,8 @@ cp -a ~/.dotfiles/yazi ~/.config/yazi
 cp ~/.dotfiles/zellij/config.kdl ~/.config/zellij/config.kdl
 cp ~/.dotfiles/theme/rose-pine.tmTheme ~/.config/bat/themes/rose-pine.tmTheme
 cp ~/.dotfiles/git/ignore ~/.config/git/ignore
+cp ~/.dotfiles/git/github.inc ~/.config/git/github.inc
+cp ~/.dotfiles/git/.gitconfig ~/.gitconfig
 cp ~/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 
 bat cache --build
@@ -199,5 +262,5 @@ For commands that drop environment variables through `sudo`, pass proxy values
 explicitly only when needed:
 
 ```bash
-sudo env http_proxy=$http_proxy https_proxy=$https_proxy pacman -Syu
+sudo env http_proxy=$http_proxy https_proxy=$https_proxy apt update
 ```

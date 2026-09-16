@@ -15,6 +15,29 @@ git clone --recursive https://github.com/zhanghb18/dotfiles.git ~/.dotfiles
 
 Then ask an agent to read `CLAUDE.md` and set up the Linux environment.
 
+### After cloning: fix the commit identity
+
+`.git/config` is not tracked, so a fresh clone inherits the machine's global
+identity — on a work machine that is the work email, and commits go out under it
+without any warning. Either copy `git/github.inc` into place, which makes every
+GitHub remote use the right address automatically:
+
+```bash
+mkdir -p ~/.config/git
+cp ~/.dotfiles/git/github.inc ~/.config/git/github.inc
+cp ~/.dotfiles/git/.gitconfig ~/.gitconfig   # carries the includeIf that loads it
+```
+
+or set it on this one repo:
+
+```bash
+git config --local user.name "Zhang Houbin"
+git config --local user.email "64059464+zhanghb18@users.noreply.github.com"
+```
+
+The first form is preferred: nothing to remember on the next clone. See
+"GitHub identity" in `CLAUDE.md` for why the `64059464+` prefix is required.
+
 ## Terminal Stack
 
 Read `docs/terminal-stack.md` for the current fish-based stack, install plan,
@@ -54,5 +77,6 @@ theme/          - Rose Pine theme assets
 - Fish is the default interactive shell.
 - No symlinks: copy reference files into their real config locations.
 - Keep host terminal/app settings out of this repo.
-- Prefer package-manager installs on Arch Linux.
+- Prefer apt on Ubuntu 24.04; a handful of tools are not packaged and come in as
+  prebuilt binaries under `~/.local/bin`.
 - Keep existing machine-specific secrets and identities intact.

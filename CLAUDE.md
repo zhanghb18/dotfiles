@@ -38,6 +38,9 @@ When setting up this repo on a new Linux environment:
 6. Before overwriting existing config, inspect it and make timestamped backups.
 7. Preserve machine-specific values such as `user.name`, `user.email`, tokens,
    proxy settings, and secrets.
+8. Set this repo's own commit identity — see "GitHub identity" below. A fresh
+   clone has no local identity, so commits silently go out under the machine's
+   global (work) address until this is done.
 
 Important: do not use symlinks. Copy reference files from this repo into the
 machine config locations so each machine can have small local differences.
@@ -130,10 +133,28 @@ The fish config initializes:
 
 ## 4. File, Search, And Preview Tools
 
-Install:
+From apt:
 
 ```text
-yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick eza bat
+ffmpeg 7zip jq poppler-utils fd-find ripgrep zoxide imagemagick eza bat
+```
+
+Not packaged in Ubuntu 24.04 — install prebuilt binaries into `~/.local/bin`:
+
+```text
+yazi resvg fzf
+```
+
+`fzf` is on that second list even though apt has one: 24.04 ships 0.44, which
+predates the `--fish` flag that `shell/config.fish` needs.
+
+Ubuntu renames two binaries. `fd-find` installs `fdfind`, `bat` installs
+`batcat`, and the fish config calls both by their upstream names:
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf /usr/bin/fdfind ~/.local/bin/fd
+ln -sf /usr/bin/batcat ~/.local/bin/bat
 ```
 
 Targets:
@@ -147,7 +168,9 @@ Targets:
 
 ### Neovim
 
-- Install `neovim` and `python-pynvim`.
+- Install `python3-pynvim` from apt. Do **not** use apt's `neovim`: 24.04 ships
+  0.9.5. Use the upstream tarball instead — this machine runs 0.12.4 unpacked
+  into `/opt/nvim` with a symlink at `~/.local/bin/nvim`.
 - Config source: `nvim/` submodule, tracking upstream
   `https://github.com/FatPigeorz/nvim_config` read-only over HTTPS so a new
   machine can `clone --recursive` without an SSH key.
@@ -158,16 +181,23 @@ Targets:
 
 ## 6. Version Control
 
-Install:
+From apt (`github-cli` is called `gh` here):
 
 ```text
-git git-delta lazygit github-cli
+git git-delta gh
 ```
+
+`lazygit` is not packaged in 24.04 — install a prebuilt binary into
+`~/.local/bin`.
+
+`git-delta` is required, not optional, once `git/.gitconfig` is in place: it sets
+`core.pager = delta`, so `git diff` fails outright without it.
 
 Targets:
 
 - `git/.gitconfig` -> `~/.gitconfig`
 - `git/ignore` -> `~/.config/git/ignore`
+- `git/github.inc` -> `~/.config/git/github.inc`
 
 `git/.gitconfig` sets no `user.name` / `user.email` on purpose. This file is
 copied to `~/.gitconfig` verbatim, and the work address should not be in a repo
@@ -210,30 +240,63 @@ Two things to know:
   2017-07-18, so the bare `zhanghb18@users.noreply.github.com` form does not
   get attributed to the account.
 
-To make this automatic instead of per-clone, key it off the remote URL in
-`git/.gitconfig` and drop the `--local` step:
+This is now automatic, so the `--local` step above is only a fallback for a
+machine where `git/.gitconfig` has not been applied yet. `git/.gitconfig` carries:
 
 ```gitconfig
 [includeIf "hasconfig:remote.*.url:https://github.com/**"]
 	path = ~/.config/git/github.inc
-[includeIf "hasconfig:remote.*.url:git@github.com:**"]
+[includeIf "hasconfig:remote.*.url:git@github.com:*/*"]
+	path = ~/.config/git/github.inc
+[includeIf "hasconfig:remote.*.url:ssh://git@github.com/**"]
 	path = ~/.config/git/github.inc
 ```
 
-Requires git >= 2.36. All GitHub remotes are on `github.com` and all work
-remotes are on `ai-git.shiyak-office.com`, so the condition is unambiguous.
+and `git/github.inc` holds the identity itself. Copy it to
+`~/.config/git/github.inc`; a missing include file is ignored rather than an
+error, so applying `.gitconfig` first is harmless.
+
+Watch the scp-like pattern: it is `git@github.com:*/*`, not `git@github.com:**`.
+`**` is a wildcard only as a whole path segment, and after a colon it degrades to
+`*`, which stops at the first `/` — so the `**` spelling matches nothing and
+fails silently, which is the worst way for this to break. Verified on git 2.43
+that all three forms above match and that a work remote on
+`ai-git.shiyak-office.com` does not.
+
+Requires git >= 2.36; Ubuntu 24.04 ships 2.43. All GitHub remotes are on
+`github.com` and all work remotes are on `ai-git.shiyak-office.com`, so the
+condition is unambiguous.
 
 ## 7. Package Summary
 
-For Arch Linux:
+For Ubuntu 24.04:
 
 ```bash
-sudo pacman -S --needed \
-  fish starship zoxide fzf atuin direnv mise uv nodejs npm go rustup \
-  zellij tmux yazi ffmpeg 7zip jq poppler fd ripgrep resvg imagemagick \
-  eza bat neovim python-pynvim git git-delta lazygit github-cli \
-  btop duf dust procs hyperfine tokei sd
+sudo apt update
+sudo apt install -y \
+  fish zoxide direnv tmux git git-delta gh \
+  ffmpeg 7zip jq poppler-utils imagemagick \
+  fd-find ripgrep eza bat \
+  nodejs npm golang-go rustup python3-pynvim \
+  btop duf hyperfine sd
 ```
+
+Then the two rename symlinks from section 4.
+
+Not in apt at all. Prebuilt binaries, which is how this machine has them:
+
+| Tool | Lands in |
+|---|---|
+| starship, atuin, mise, yazi, resvg, lazygit, fzf | `~/.local/bin/` |
+| uv, zellij | `/usr/local/bin/` |
+| neovim (0.12.4) | `/opt/nvim`, symlinked into `~/.local/bin/` |
+| dust, procs, tokei | `cargo install du-dust procs tokei` |
+
+Held back from apt on purpose: `fzf` (0.44, no `--fish`) and `neovim` (0.9.5).
+Both are covered above.
+
+The upstream repo targeted Arch. If a machine is Arch rather than Ubuntu, the
+Arch names are in this repo's history at `70f3773`.
 
 Optional font packages are machine/host specific. Do not manage Windows fonts
 from this repo.
