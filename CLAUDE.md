@@ -197,7 +197,6 @@ Targets:
 
 - `git/.gitconfig` -> `~/.gitconfig`
 - `git/ignore` -> `~/.config/git/ignore`
-- `git/github.inc` -> `~/.config/git/github.inc`
 
 `git/.gitconfig` sets no `user.name` / `user.email` on purpose. This file is
 copied to `~/.gitconfig` verbatim, and the work address should not be in a repo
@@ -240,32 +239,11 @@ Two things to know:
   2017-07-18, so the bare `zhanghb18@users.noreply.github.com` form does not
   get attributed to the account.
 
-This is now automatic, so the `--local` step above is only a fallback for a
-machine where `git/.gitconfig` has not been applied yet. `git/.gitconfig` carries:
-
-```gitconfig
-[includeIf "hasconfig:remote.*.url:https://github.com/**"]
-	path = ~/.config/git/github.inc
-[includeIf "hasconfig:remote.*.url:git@github.com:*/*"]
-	path = ~/.config/git/github.inc
-[includeIf "hasconfig:remote.*.url:ssh://git@github.com/**"]
-	path = ~/.config/git/github.inc
-```
-
-and `git/github.inc` holds the identity itself. Copy it to
-`~/.config/git/github.inc`; a missing include file is ignored rather than an
-error, so applying `.gitconfig` first is harmless.
-
-Watch the scp-like pattern: it is `git@github.com:*/*`, not `git@github.com:**`.
-`**` is a wildcard only as a whole path segment, and after a colon it degrades to
-`*`, which stops at the first `/` — so the `**` spelling matches nothing and
-fails silently, which is the worst way for this to break. Verified on git 2.43
-that all three forms above match and that a work remote on
-`ai-git.shiyak-office.com` does not.
-
-Requires git >= 2.36; Ubuntu 24.04 ships 2.43. All GitHub remotes are on
-`github.com` and all work remotes are on `ai-git.shiyak-office.com`, so the
-condition is unambiguous.
+`--local` is deliberately the only mechanism. A `hasconfig:remote.*.url`
+`includeIf` in `git/.gitconfig` could set this automatically, but it was dropped:
+it would put a GitHub identity into every machine's global config to serve the
+one repo that talks to GitHub, and two ways to set the same thing is worse than
+one step to remember.
 
 ## 7. Package Summary
 

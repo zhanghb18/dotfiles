@@ -19,24 +19,16 @@ Then ask an agent to read `CLAUDE.md` and set up the Linux environment.
 
 `.git/config` is not tracked, so a fresh clone inherits the machine's global
 identity — on a work machine that is the work email, and commits go out under it
-without any warning. Either copy `git/github.inc` into place, which makes every
-GitHub remote use the right address automatically:
-
-```bash
-mkdir -p ~/.config/git
-cp ~/.dotfiles/git/github.inc ~/.config/git/github.inc
-cp ~/.dotfiles/git/.gitconfig ~/.gitconfig   # carries the includeIf that loads it
-```
-
-or set it on this one repo:
+without any warning. Run these two commands right after cloning:
 
 ```bash
 git config --local user.name "Zhang Houbin"
 git config --local user.email "64059464+zhanghb18@users.noreply.github.com"
 ```
 
-The first form is preferred: nothing to remember on the next clone. See
-"GitHub identity" in `CLAUDE.md` for why the `64059464+` prefix is required.
+This is the only repo here that talks to GitHub, so it stays a per-repo setting
+and nothing global changes. See "GitHub identity" in `CLAUDE.md` for why the
+`64059464+` prefix is required.
 
 ## Terminal Stack
 

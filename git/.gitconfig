@@ -7,22 +7,6 @@
 #   git config --global user.name  "<name>"
 #   git config --global user.email "<address>"
 # GitHub repos need a different address — see "GitHub identity" in CLAUDE.md.
-#
-# GitHub is the exception: those remotes get an identity automatically, keyed off
-# the remote URL, so a fresh clone needs no `git config --local`. Needs
-# git >= 2.36 (Ubuntu 24.04 ships 2.43). A missing include file is ignored rather
-# than an error, so this is safe before github.inc is copied into place.
-#
-# Three URL forms, three patterns. Note the scp-like form needs `*/*`, not `**`:
-# git treats `**` as a wildcard only when it is a whole path segment, and in
-# `git@github.com:**` it follows a colon, so it degrades to `*` and stops at the
-# first `/` — silently never matching. Verified against git 2.43.
-[includeIf "hasconfig:remote.*.url:https://github.com/**"]
-	path = ~/.config/git/github.inc
-[includeIf "hasconfig:remote.*.url:git@github.com:*/*"]
-	path = ~/.config/git/github.inc
-[includeIf "hasconfig:remote.*.url:ssh://git@github.com/**"]
-	path = ~/.config/git/github.inc
 [url "https://github"]
 	insteadOf = git://github
 [interactive]

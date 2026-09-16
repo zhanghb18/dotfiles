@@ -17,7 +17,6 @@ Managed here:
 - `~/.claude/settings.json` (portable keys only — see `claude/README.md`)
 - `~/.gitconfig`
 - `~/.config/git/ignore`
-- `~/.config/git/github.inc`
 - `~/.tmux.conf`
 
 Not managed here:
@@ -230,7 +229,6 @@ cp -a ~/.dotfiles/yazi ~/.config/yazi
 cp ~/.dotfiles/zellij/config.kdl ~/.config/zellij/config.kdl
 cp ~/.dotfiles/theme/rose-pine.tmTheme ~/.config/bat/themes/rose-pine.tmTheme
 cp ~/.dotfiles/git/ignore ~/.config/git/ignore
-cp ~/.dotfiles/git/github.inc ~/.config/git/github.inc
 cp ~/.dotfiles/git/.gitconfig ~/.gitconfig
 cp ~/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 
