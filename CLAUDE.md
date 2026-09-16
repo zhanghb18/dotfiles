@@ -32,7 +32,9 @@ When setting up this repo on a new Linux environment:
 3. Prefer fish as the interactive shell unless the user explicitly asks
    otherwise.
 4. Install the package set for the detected distro.
-5. Copy reference configs into the real config paths.
+5. Copy reference configs into the real config paths. Two files are exceptions
+   and must be merged or appended instead — `claude/settings.json` and
+   `shell/bashrc-fish-switch.sh`.
 6. Before overwriting existing config, inspect it and make timestamped backups.
 7. Preserve machine-specific values such as `user.name`, `user.email`, tokens,
    proxy settings, and secrets.
@@ -67,6 +69,26 @@ Fish is the primary shell.
 - Reference config: `shell/config.fish`
 - Target path: `~/.config/fish/config.fish`
 - Previous zsh behavior has been migrated into `shell/config.fish`.
+
+Fish is the *interactive* shell, not the login shell. Do not run `chsh -s
+$(which fish)`. Leave `/etc/passwd` on `/bin/bash` and append
+`shell/bashrc-fish-switch.sh` to `~/.bashrc` instead:
+
+```bash
+grep -q 'dotfiles: interactive bash -> fish' ~/.bashrc ||
+  cat ~/.dotfiles/shell/bashrc-fish-switch.sh >> ~/.bashrc
+```
+
+Append, never overwrite — the rest of `~/.bashrc` is distro-provided. Making fish
+the login shell breaks VSCode Remote-SSH, whose bootstrap is a bash script sent
+over `ssh host bash -c '...'`; the symptom is `Connecting with SSH timed out`.
+The appended block hands over to fish only for a real interactive terminal, so
+`ssh host 'cmd'`, the VSCode server, and this agent's own Bash tool all stay in
+bash. Read `shell/README.md` before changing the conditions.
+
+Two rules keep that working, because `$SHELL` is what tools actually consult and
+`exec fish` does not rewrite it: never `chsh` to fish, and never assign `SHELL`
+in `shell/config.fish` or in zellij's `env` block.
 
 The fish config initializes:
 

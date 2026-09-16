@@ -8,6 +8,7 @@ Managed here:
 
 - Linux shell and CLI tool config
 - `~/.config/fish/config.fish`
+- `~/.bashrc` (only the appended fish-handoff block)
 - `~/.config/atuin/config.toml`
 - `~/.config/starship.toml`
 - `~/.config/yazi/`
@@ -35,7 +36,7 @@ The current preferred environment is:
 
 ```text
 Arch Linux on WSL or native Linux
-fish as the login shell
+bash as the login shell, fish as the interactive shell
 Starship prompt
 Zellij for workspace sessions
 Neovim for editing
@@ -60,6 +61,15 @@ Install it to:
 ```text
 ~/.config/fish/config.fish
 ```
+
+Fish is not the login shell, though. `/etc/passwd` stays on `/bin/bash` and
+`~/.bashrc` execs fish only for a plain interactive terminal, using the block in
+`shell/bashrc-fish-switch.sh`. The reason is VSCode Remote-SSH: it bootstraps by
+running a bash script through `ssh host bash -c '...'`, fish cannot parse it, and
+the connection fails with `Connecting with SSH timed out`. Anything driving a
+shell programmatically — scripts, `ssh host 'cmd'`, Claude Code's Bash tool —
+stays in bash for the same reason. `NO_FISH=1` skips the handoff for one session.
+See `shell/README.md` for the exact conditions.
 
 The config wires up:
 
@@ -162,6 +172,14 @@ cp ~/.dotfiles/git/ignore ~/.config/git/ignore
 cp ~/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 
 bat cache --build
+```
+
+`~/.bashrc` is appended to, not copied over, since the rest of it comes from the
+distro:
+
+```bash
+grep -q 'dotfiles: interactive bash -> fish' ~/.bashrc ||
+  cat ~/.dotfiles/shell/bashrc-fish-switch.sh >> ~/.bashrc
 ```
 
 For Neovim, prefer a real clone/copy at `~/.config/nvim` instead of a symlink.
