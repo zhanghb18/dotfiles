@@ -108,12 +108,12 @@ It stays in bash whenever the session is not a human at a terminal:
 | `BASH_EXECUTION_STRING` non-empty | `ssh host 'cmd'`, the VSCode bootstrap |
 | `stdin` or `stdout` not a tty | pipes, scripts, Claude Code's Bash tool |
 | `VSCODE_AGENT_FOLDER` set | processes inside the VSCode server |
-| `CLAUDECODE` set | anything under Claude Code, even with a pty |
 | `NO_FISH` set | manual escape hatch: `NO_FISH=1 ssh host` |
 
-The `CLAUDECODE` check is belt-and-braces. Claude Code's Bash tool has no tty
-today, so the tty check already catches it; the explicit check means a future
-version that allocates a pty does not silently land the agent in fish.
+A `CLAUDECODE` check was tried here and dropped: Claude Code drives bash through
+`bash -c`, which sets `BASH_EXECUTION_STRING` and has no tty, so the first two
+conditions already cover it. One more condition that never fires is one more
+thing to explain.
 
 To land in bash for one session without editing anything:
 

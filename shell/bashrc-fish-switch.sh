@@ -10,13 +10,11 @@
 #   - 带命令进来        BASH_EXECUTION_STRING  (如 ssh host 'cmd')
 #   - stdin/stdout 非 tty                      (管道、agent、脚本)
 #   - VSCode server 内  VSCODE_AGENT_FOLDER
-#   - Claude Code 内    CLAUDECODE
 #   - 临时想留 bash     NO_FISH=1 ssh host     (也可以 bash --norc)
 if [ -z "${BASH_EXECUTION_STRING:-}" ] &&
    [ -t 0 ] && [ -t 1 ] &&
    [ -z "${NO_FISH:-}" ] &&
    [ -z "${VSCODE_AGENT_FOLDER:-}" ] &&
-   [ -z "${CLAUDECODE:-}" ] &&
    command -v fish >/dev/null 2>&1; then
     exec fish
 fi
