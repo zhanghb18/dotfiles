@@ -2,7 +2,9 @@ set -gx PATH $HOME/.local/bin $HOME/.cargo/bin $HOME/go/bin $PATH
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 set -gx BAT_THEME rose-pine
-# claude code 在 root 下需要它才允许 --dangerously-skip-permissions
+# claude code 在 root 下靠它才放行显式的 --dangerously-skip-permissions。
+# 默认权限模式不再走 bypass,由 claude/settings.json 的 permissions.defaultMode
+# 决定(auto);这里只保留手动 bypass 的口子。
 # 必须放在 is-interactive 之外,否则非交互 fish / zellij resurrect 拿不到
 set -gx IS_SANDBOX 1
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
@@ -42,8 +44,6 @@ if status is-interactive
     alias gl 'git pull'
     alias gd 'git diff'
     alias b btop
-    alias claude-internal 'claude-internal --dangerously-skip-permissions'
-    alias claude 'claude --dangerously-skip-permissions'
 
     if command -q starship
         starship init fish | source

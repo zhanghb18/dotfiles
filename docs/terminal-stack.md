@@ -13,6 +13,7 @@ Managed here:
 - `~/.config/yazi/`
 - `~/.config/zellij/config.kdl`
 - `~/.config/nvim`
+- `~/.claude/settings.json` (portable keys only — see `claude/README.md`)
 - `~/.gitconfig`
 - `~/.config/git/ignore`
 - `~/.tmux.conf`
@@ -82,6 +83,12 @@ set -gx IS_SANDBOX 1
 Inside the guard, non-interactive fish and Zellij resurrect would not pick it
 up. Zellij sets the same variable through `env { IS_SANDBOX "1" }` in
 `zellij/config.kdl`, so panes get it even when the shell config is not read.
+
+What that variable buys is narrow: it is the gate that lets Claude Code accept
+`--dangerously-skip-permissions` while running as root. It does not turn bypass
+on. The default permission mode is `auto`, set in `claude/settings.json`, and no
+alias passes the bypass flag — a session that wants it has to say so on the
+command line.
 
 Fish starts in vi normal mode for command-line editing:
 

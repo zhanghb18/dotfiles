@@ -79,7 +79,9 @@ The fish config initializes:
 - mise
 - Yazi `y` wrapper
 - `IS_SANDBOX=1`, exported outside the `status is-interactive` guard so
-  non-interactive fish and Zellij resurrect also see it
+  non-interactive fish and Zellij resurrect also see it. It only makes an
+  explicit `--dangerously-skip-permissions` possible as root; the default
+  permission mode comes from `claude/settings.json`. No alias adds that flag.
 
 ## 3. Terminal Workspace
 
@@ -93,7 +95,8 @@ The fish config initializes:
 - Theme is `catppuccin-mocha` here, a deliberate exception to the Rose Pine
   default. See `theme/README.md`.
 - The config declares `env { IS_SANDBOX "1" }` so every pane and every
-  resurrected command inherits it without depending on a fish alias.
+  resurrected command inherits it without depending on the fish config being
+  read. See `claude/README.md` for what it does and does not enable.
 - Zellij rewrites this file when it regenerates defaults. After a rewrite,
   re-apply the repo copy or capture the machine copy back into the repo.
 
@@ -222,3 +225,16 @@ Use Rose Pine where configs exist:
 - bat/delta syntax theme via `theme/rose-pine.tmTheme`
 
 Read `theme/README.md` for palette details.
+
+## 9. Claude Code
+
+- Reference config: `claude/settings.json`
+- Target path: `~/.claude/settings.json`
+- Default permission mode is `auto`, set through
+  `permissions.defaultMode`. Bypass is not the default: it skips every prompt.
+- This file is the one exception to "copy reference configs into place". Merge it
+  instead, because the live file also holds the machine's gateway `env`, its
+  gateway-specific `model` id, and platform-injected `hooks`, none of which
+  belong in this repo.
+- Read `claude/README.md` before touching it — it carries the merge command and
+  the reason each excluded key is excluded.
